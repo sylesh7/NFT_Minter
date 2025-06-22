@@ -77,30 +77,10 @@ export default function Home() {
       if (!imageRes.ok) throw new Error('Failed to upload image to Pinata');
       const imageData = await imageRes.json();
       const imageCID = imageData.IpfsHash;
-      const imageUrl = `ipfs://${imageCID}`;
+      const tokenURI = `ipfs://${imageCID}`;
       setIpfsHash(imageCID);
 
-      // 2. Upload metadata to Pinata
-      const metadata = {
-        name: form.name,
-        description: form.description,
-        image: imageUrl,
-        attributes: form.attr1Name && form.attr1Value ? [
-          { trait_type: form.attr1Name, value: form.attr1Value }
-        ] : [],
-      };
-      const metaRes = await fetch('/api/pinata-metadata', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(metadata),
-      });
-      if (!metaRes.ok) throw new Error('Failed to upload metadata to Pinata');
-      const metaData = await metaRes.json();
-      const metaCID = metaData.IpfsHash;
-      const tokenURI = `ipfs://${metaCID}`;
-      setIpfsHash(metaCID);
-
-      // 3. Mint NFT on blockchain using wagmi
+      // 2. Mint NFT on blockchain using wagmi (tokenURI is the image IPFS URL)
       writeContract({
         address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
         abi: contractABI,
@@ -217,4 +197,4 @@ export default function Home() {
       </div>
     </div>
   );
-} 
+}
